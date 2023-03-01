@@ -49,14 +49,16 @@ public class CreateHex : MonoBehaviour
                     center.x += 0.5f * horizonal_spacing;
                 }
                 Debug.Log("Hex " + row + ":" + column + " center is: " + center);
-                placeMarker(center, "hexCenter " + row + ":" + column);
-                create_hex(center, hexSize, "Hex " + row + ":" + column);
+                create_hex(center, hexSize, row + ":" + column);
                 
             }
         }
     }
     private void create_hex(Vector3 hex_center, float hex_size, string name)
     {
+        GameObject gameObject = new GameObject("Hex " + name, typeof(MeshFilter), typeof(MeshRenderer));
+        gameObject.transform.SetParent(transform, false);
+        Transform parentTransform = gameObject.transform;
 
         Vector3[] vertices = new Vector3[6];
         Vector2[] uv = new Vector2[6];
@@ -71,7 +73,7 @@ public class CreateHex : MonoBehaviour
                 hex_center.y + hex_size * Mathf.Sin(angle_rad)
             );
             uv[i] = new Vector2(vertices[i].x, vertices[i].y);
-            placeMarker(vertices[i], "Vertice " + i);
+            placeMarker(vertices[i], "Vertice " + i, parentTransform);
         }
 
         triangles[0] = 0;
@@ -97,18 +99,16 @@ public class CreateHex : MonoBehaviour
         mesh.triangles = triangles;
         mesh.RecalculateNormals();
 
-        GameObject gameObject = new GameObject(name, typeof(MeshFilter), typeof(MeshRenderer));
-
         gameObject.GetComponent<MeshFilter>().mesh = mesh;
         gameObject.GetComponent<MeshRenderer>().material = material;
-        
-        gameObject.transform.SetParent(transform, false);
+        placeMarker(hex_center, "hexCenter " + name, parentTransform);
+
     }
 
-    private void placeMarker(Vector3 center, string name)
+    private void placeMarker(Vector3 center, string name, Transform parent)
     {
         GameObject centerMark = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-        centerMark.transform.SetParent(transform, false);
+        centerMark.transform.SetParent(parent, false);
         centerMark.transform.localPosition = center;
         centerMark.transform.localScale = markerScale;
         centerMark.name=name;
